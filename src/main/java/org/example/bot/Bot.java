@@ -16,9 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static sun.reflect.annotation.AnnotationParser.toArray;
+
 public class Bot extends TelegramLongPollingBot
 {
-    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/start","/hello","/whatAreYou","/age","/time"));
+    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/hello","/whatAreYou","/age","/time"));
 
     public static void main(String[] args) throws TelegramApiException {
         TelegramBotsApi tBotApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -46,48 +48,49 @@ public class Bot extends TelegramLongPollingBot
         {
             String message="";
             String text = update.getMessage().getText();
-            if (text.equals("/help"))
-            {
-                SendMessage message1 = createMessage("Hello im Andrey's first Bot \nMy commands are\n",chatId);
-                attachButtons(message1,Map.of
-                        (
-                                commandList.get(0), commandList.get(0)+"_btn",
-                                commandList.get(1), commandList.get(1)+"_btn",
-                                commandList.get(2), commandList.get(2)+"_btn",
-                                commandList.get(3), commandList.get(3)+"_btn",
-                                commandList.get(4), commandList.get(4)+"_btn"
-                        ));
-                sendApiMethodAsync(message1);
-            }
-            else if (!text.matches("^/\\w+"))
+            if (!text.matches("^/\\w+"))
             {
                 message="this is not a command, try /help to get command list";
             }
             else if (text.matches("^/\\w+"))
             {
-                if(text.equals(commandList.get(0)))
-                {
-                    message="Hello im Andrey's first Bot, made by BotFather, ready to help you\n(try /help to get command list)";
-                }
-                else if (text.equals(commandList.get(1)))
-                {
-                    message="Hello im AGAVFirst_bot, what can I help you with";
-                }
-                else if (text.equals(commandList.get(2)))
-                {
-                    message="Im a Telegram Bot made by BotFather";
-                }
-                else if (text.equals(commandList.get(3)))
-                {
-                    message="Im a bot I don't have an age";
-                }
-                else if (text.equals(commandList.get(4)))
-                {
-                    message="\"Time is relative\"\nAlbert Einstein";
-                }
-                else
-                {
-                    message="this is a command that we don't have registered, try /help to get command list";
+                switch (text) {
+                    case "/start":
+                        message = "Hello im Andrey's first Bot, made by BotFather, ready to help you\n(try /help to get command list)";
+                        break;
+
+                    case "/hello":
+                        message = "Hello im AGAVFirst_bot, what can I help you with";
+                        break;
+
+                    case "/whatAreYou":
+                        message = "Im a Telegram Bot made by BotFather";
+                        break;
+
+                    case "/age":
+                        message = "Im a bot I don't have an age";
+                        break;
+
+                    case "/time":
+                        message = "\"Time is relative\"\nAlbert Einstein";
+                        break;
+
+                    case "/help":
+                        SendMessage message1 = createMessage("Hello im Andrey's first Bot \nMy commands are\n", chatId);
+                        attachButtons(message1, Map.of(
+                                commandList.get(0), commandList.get(0) + "_btn",
+                                commandList.get(1), commandList.get(1) + "_btn",
+                                commandList.get(2), commandList.get(2) + "_btn",
+                                commandList.get(3), commandList.get(3) + "_btn",
+                                commandList.get(4), commandList.get(4) + "_btn",
+                                commandList.get(5), commandList.get(5) + "_btn"
+                        ));
+                        sendApiMethodAsync(message1);
+                        break;
+
+                    default:
+                        message = "this is a command that we don't have registered, try /help to get command list";
+                        break;
                 }
             }
             SendMessage message1 = createMessage(message,chatId);
@@ -95,9 +98,9 @@ public class Bot extends TelegramLongPollingBot
         }
         if (update.hasCallbackQuery())
         {
-            String button=update.getCallbackQuery().getId();
+            String button=update.getCallbackQuery().getData();
             String message;
-            if(button.equals(commandList.get(0)+"_btn"))
+            if(button.equals(commandList.get(0)))
             {
                 message="Hello im Andrey's first Bot, made by BotFather, ready to help you\n(try /help to get command list)";
             }
@@ -120,6 +123,7 @@ public class Bot extends TelegramLongPollingBot
             else
             {
                 message="This button doesn't have a assigned function";
+                System.out.println(update.getCallbackQuery());
             }
             SendMessage message1 = createMessage(message,chatId);
             sendApiMethodAsync(message1);
@@ -137,6 +141,10 @@ public class Bot extends TelegramLongPollingBot
         if (update.hasMessage())
         {
             return update.getMessage().getChatId();
+        }
+        else if (update.hasCallbackQuery())
+        {
+            return update.getCallbackQuery().getFrom().getId();
         }
         return null;
     }

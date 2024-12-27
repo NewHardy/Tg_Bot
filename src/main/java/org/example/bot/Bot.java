@@ -44,12 +44,9 @@ public class Bot extends TelegramLongPollingBot
         Long chatId = getChatId(update);
         if (!userList.contains(new User(chatId)))
         {
-            if (!userList.contains(getChatId(update)))
-            {
-                userList.add(new User(getChatId(update)));
-                SendMessage message = createMessage("you have been registred",chatId);
-                sendApiMethodAsync(message);
-            }
+            userList.add(new User(getChatId(update)));
+            SendMessage message = createMessage("you have been registred",chatId);
+            sendApiMethodAsync(message);
         }
         else
         {
@@ -118,10 +115,7 @@ public class Bot extends TelegramLongPollingBot
         Long chatId = getChatId(update);
         if (!userList.contains(new User(chatId)))
         {
-            if (!userList.contains(getChatId(update)))
-            {
-                userList.add(new User(getChatId(update)));
-            }
+            userList.add(new User(getChatId(update)));
         }
         SendMessage message = createMessage("Choose your time when to get notification",chatId);
         Map <String, String> row1 = new HashMap<>(Map.of(
@@ -372,10 +366,8 @@ public class Bot extends TelegramLongPollingBot
         List <List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         for (Map<String,String> buttons:arrayButtons)
         {
-            ArrayList<String> sortedSet = (ArrayList<String>) buttons.keySet();
-            //sortedSet.sort();
             ArrayList<InlineKeyboardButton> list = new ArrayList<>();
-            for (String buttonText:sortedSet)
+            for (String buttonText:buttons.keySet())
             {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText(buttonText);

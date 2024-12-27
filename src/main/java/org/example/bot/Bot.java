@@ -126,37 +126,39 @@ public class Bot extends TelegramLongPollingBot
                 "2:00","2:00_btn",
                 "2:30","2:30_btn",
                 "3:00","3:00_btn",
-                "3:30","3:30_btn",
-                "4:00","4:00_btn",
-                "4:30","4:30_btn"
+                "3:30","3:30_btn"
         ));
         Map <String, String> row2 = new HashMap<>(Map.of(
+                "4:00","4:00_btn",
+                "4:30","4:30_btn",
                 "5:00","5:00_btn",
                 "5:30","5:30_btn",
                 "6:00","6:00_btn",
                 "6:30","6:30_btn",
                 "7:00","7:00_btn",
-                "7:30","7:30_btn",
+                "7:30","7:30_btn"
+        ));
+        Map <String, String> row3 = new HashMap<>(Map.of(
                 "8:00","8:00_btn",
                 "8:30","8:30_btn",
                 "9:00","9:00_btn",
-                "9:30","9:30_btn"
-        ));
-        Map <String, String> row3 = new HashMap<>(Map.of(
+                "9:30","9:30_btn",
                 "10:00","10:00_btn",
                 "10:30","10:30_btn",
                 "11:00","11:00_btn",
-                "11:30","11:30_btn",
+                "11:30","11:30_btn"
+        ));
+        Map <String, String> row4 = new HashMap<>(Map.of(
                 "12:00","12:00_btn",
                 "12:30","12:30_btn",
                 "13:00","13:00_btn",
                 "13:30","13:30_btn",
                 "14:00","14:00_btn",
-                "14:30","14:30_btn"
-        ));
-        Map <String, String> row4 = new HashMap<>(Map.of(
+                "14:30","14:30_btn",
                 "15:00","15:00_btn",
-                "15:30","15:30_btn",
+                "15:30","15:30_btn"
+        ));
+        Map<String,String> row5 = new HashMap<>(Map.of(
                 "16:00","16:00_btn",
                 "16:30","16:30_btn",
                 "17:00","17:00_btn",
@@ -166,7 +168,7 @@ public class Bot extends TelegramLongPollingBot
                 "19:00","19:00_btn",
                 "19:30","19:30_btn"
         ));
-        Map <String, String> row5 = new HashMap<>(Map.of(
+        Map <String, String> row6 = new HashMap<>(Map.of(
                 "20:00","20:00_btn",
                 "20:30","20:30_btn",
                 "21:00","21:00_btn",
@@ -182,6 +184,7 @@ public class Bot extends TelegramLongPollingBot
         list.add(row3);
         list.add(row4);
         list.add(row5);
+        list.add(row6);
         attachButtons(message,list);
         sendApiMethodAsync(message);
     });

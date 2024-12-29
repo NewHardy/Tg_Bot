@@ -370,7 +370,9 @@ public class Bot extends TelegramLongPollingBot
         for (Map<String,String> buttons:arrayButtons)
         {
             ArrayList<InlineKeyboardButton> list = new ArrayList<>();
-            for (String buttonText:buttons.keySet())
+            List <String> keySetList= new ArrayList<>(buttons.keySet().stream().toList());
+            keySetList.sort(new TimeComparator());
+            for (String buttonText:keySetList)
             {
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText(buttonText);
@@ -382,6 +384,21 @@ public class Bot extends TelegramLongPollingBot
         markup.setKeyboard(keyboard);
         message.setReplyMarkup(markup);
 
+    }
+    static class TimeComparator implements Comparator<String> {
+        @Override
+        public int compare(String time1, String time2) {
+            int minutes1 = convertToInt(time1);
+            int minutes2 = convertToInt(time2);
+            return Integer.compare(minutes1, minutes2);
+        }
+
+        private int convertToInt(String time) {
+            int hour=Integer.valueOf(time.substring(0,2));
+            int mins=Integer.valueOf(time.substring(3));
+
+            return hour * 60 + mins;
+        }
     }
 
     {

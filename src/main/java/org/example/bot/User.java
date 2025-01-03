@@ -2,11 +2,20 @@ package org.example.bot;
 
 import java.util.Objects;
 
-public class User
+public class User implements Comparable<User>
 {
     private Long chatID;
     private int hour;
     private int mins;
+    private String value;
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 
     public void setChatID(Long chatID) {
         this.chatID = chatID;
@@ -47,5 +56,10 @@ public class User
     @Override
     public int hashCode() {
         return Objects.hashCode(chatID);
+    }
+
+    @Override
+    public int compareTo(User user) {
+        return Long.compare(this.chatID,user.chatID);
     }
 }

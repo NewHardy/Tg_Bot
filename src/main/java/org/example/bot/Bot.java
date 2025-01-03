@@ -26,7 +26,7 @@ public class Bot extends TelegramLongPollingBot
 
     private static ArrayList<User> userList=new ArrayList<>();
     private final Gson gson= new Gson();
-    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/hello","/whatAreYou","/age","/time","/BTC","/ETH","/Settings","/setAlarm","/test"));
+    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/BTC","/ETH","/Settings","/setAlarmTime","/setAlarmValue","/disableAlarm"));
     private final HashMap <String, String> helpCommandMap= new HashMap<>();
 
     private final Consumer<Update> noCommand= (update -> {
@@ -45,34 +45,14 @@ public class Bot extends TelegramLongPollingBot
         if (!userList.contains(new User(chatId)))
         {
             userList.add(new User(getChatId(update)));
-            SendMessage message = createMessage("you have been registred",chatId);
+            SendMessage message = createMessage("you have been registered to the Bot, welcome to the best crypto bot ever",chatId);
             sendApiMethodAsync(message);
         }
         else
         {
-            SendMessage message = createMessage("you are registred",chatId);
+            SendMessage message = createMessage("you are registered already registered to the best crypto bot",chatId);
             sendApiMethodAsync(message);
         }
-    };
-    private final Consumer<Update> hello = (update)->{
-        Long chatId = getChatId(update);
-        SendMessage message = createMessage("Hello im CRYPTO_Bot, what can I help you with", chatId);
-        sendApiMethodAsync(message);
-    };
-    private final Consumer<Update> whatAreYou = (update)->{
-        Long chatId = getChatId(update);
-        SendMessage message = createMessage("I am a telegram bot created by BotFather", chatId);
-        sendApiMethodAsync(message);
-    };
-    private final Consumer<Update> age = (update)->{
-        Long chatId = getChatId(update);
-        SendMessage message = createMessage("I am a bot i don't have an age", chatId);
-        sendApiMethodAsync(message);
-    };
-    private final Consumer<Update> time = (update)->{
-        Long chatId = getChatId(update);
-        SendMessage message = createMessage("\"Time is relative\"\nAlbert Einstein", chatId);
-        sendApiMethodAsync(message);
     };
     private final Consumer<Update> BTC = (update)->{
         Long chatId = getChatId(update);
@@ -107,77 +87,39 @@ public class Bot extends TelegramLongPollingBot
        Long chatId = getChatId(update);
         SendMessage message = createMessage("Settings", chatId);
         attachButtons(message, Map.of(
-                "/setAlarm", "/setAlarm_btn"
+                "/setAlarmTime", "/setAlarmTime_btn",
+                "/setAlarmValue","/setAlarmValue_btn",
+                "/disableAlarm","/disableAlarm_btn"
         ));
         sendApiMethodAsync(message);
     });
-    private final Consumer<Update> setAlarm = (update -> {
+    private final Consumer<Update> setAlarmValue = (update -> {
+        Long chatId = getChatId(update);
+        if (!userList.contains(new User(chatId)))
+        {
+            userList.add(new User(getChatId(update)));
+        }
+        SendMessage message = createMessage("Choose the crypto for your alarm",chatId);
+        attachButtons(message,Map.of(
+                "ETH","ETH_btn",
+                "BTC","BTC_btn"
+        ));
+        sendApiMethodAsync(message);
+    });
+    private final Consumer<Update> setAlarmTime = (update -> {
         Long chatId = getChatId(update);
         if (!userList.contains(new User(chatId)))
         {
             userList.add(new User(getChatId(update)));
         }
         SendMessage message = createMessage("Choose your time when to get notification",chatId);
-        Map <String, String> row1 = new HashMap<>(Map.of(
-                "0:00","0:00_btn",
-                "0:30","0:30_btn",
-                "1:00","1:00_btn",
-                "1:30","1:30_btn",
-                "2:00","2:00_btn",
-                "2:30","2:30_btn",
-                "3:00","3:00_btn",
-                "3:30","3:30_btn"
-        ));
-        Map <String, String> row2 = new HashMap<>(Map.of(
-                "4:00","4:00_btn",
-                "4:30","4:30_btn",
-                "5:00","5:00_btn",
-                "5:30","5:30_btn",
-                "6:00","6:00_btn",
-                "6:30","6:30_btn",
-                "7:00","7:00_btn",
-                "7:30","7:30_btn"
-        ));
-        Map <String, String> row3 = new HashMap<>(Map.of(
-                "8:00","8:00_btn",
-                "8:30","8:30_btn",
-                "9:00","9:00_btn",
-                "9:30","9:30_btn",
-                "10:00","10:00_btn",
-                "10:30","10:30_btn",
-                "11:00","11:00_btn",
-                "11:30","11:30_btn"
-        ));
-        Map <String, String> row4 = new HashMap<>(Map.of(
-                "12:00","12:00_btn",
-                "12:30","12:30_btn",
-                "13:00","13:00_btn",
-                "13:30","13:30_btn",
-                "14:00","14:00_btn",
-                "14:30","14:30_btn",
-                "15:00","15:00_btn",
-                "15:30","15:30_btn"
-        ));
-        Map<String,String> row5 = new HashMap<>(Map.of(
-                "16:00","16:00_btn",
-                "16:30","16:30_btn",
-                "17:00","17:00_btn",
-                "17:30","17:30_btn",
-                "18:00","18:00_btn",
-                "18:30","18:30_btn",
-                "19:00","19:00_btn",
-                "19:30","19:30_btn"
-        ));
-        Map <String, String> row6 = new HashMap<>(Map.of(
-                "20:00","20:00_btn",
-                "20:30","20:30_btn",
-                "21:00","21:00_btn",
-                "21:30","21:30_btn",
-                "22:00","22:00_btn",
-                "22:30","22:30_btn",
-                "23:00","23:00_btn",
-                "23:30","23:30_btn"
-        ));
+        Map <String, String> row1 = createTimeButtons(0,3);
+        Map <String, String> row2 = createTimeButtons(4,7);
+        Map <String, String> row3 = createTimeButtons(8,11);
+        Map <String, String> row4 = createTimeButtons(12,15);
+        Map <String, String> row5 = createTimeButtons(16,19);
+        Map <String, String> row6 = createTimeButtons(20,23);
+
         ArrayList<Map<String,String>> list = new ArrayList<>();
         list.add(row1);
         list.add(row2);
@@ -185,8 +127,25 @@ public class Bot extends TelegramLongPollingBot
         list.add(row4);
         list.add(row5);
         list.add(row6);
+        list.add(Map.of(
+                "TEST", "15:30_btn"
+        ));
         attachButtons(message,list);
         sendApiMethodAsync(message);
+    });
+    private final Consumer<Update> disableAlarm = (update -> {
+        Long chatId = getChatId(update);
+        if (!userList.contains(new User(chatId)))
+        {
+            userList.add(new User(getChatId(update)));
+        }
+        userList.get(getUserIndex(chatId)).setValue("");
+        userList.get(getUserIndex(chatId)).setMins(1);
+        userList.get(getUserIndex(chatId)).setHour(24);
+        SendMessage message = createMessage("your alarm have been disabled",chatId);
+
+        sendApiMethodAsync(message);
+
     });
     private final Consumer<Update> test = (update -> {
         Long chatId = getChatId(update);
@@ -198,7 +157,7 @@ public class Bot extends TelegramLongPollingBot
     private final Map<String, Consumer<Update>> commandMap = new HashMap<>();
 
     private final ArrayList<Consumer<Update>> consumerList=new ArrayList<>(Arrays.asList(
-            help,start,hello,whatAreYou,age,time,BTC,ETH,settings,setAlarm,test
+            help,start,BTC,ETH,settings,setAlarmTime,setAlarmValue,disableAlarm
     ));
 
     public static void main(String[] args) throws TelegramApiException {
@@ -218,7 +177,9 @@ public class Bot extends TelegramLongPollingBot
                         if (user.getMins()==mins)
                         {
                             try {
-                                SendMessage message= bot.createMessage(bot.getPrices("BTC").toString(),user.getChatID());
+                                SendMessage message= bot.createMessage("ALARM\n"+user.getValue()+" "+
+                                        bot.getPrices(user.getValue()).toString()
+                                        ,user.getChatID());
                                 bot.sendApiMethodAsync(message);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
@@ -328,6 +289,13 @@ public class Bot extends TelegramLongPollingBot
             SendMessage message = createMessage("Notification time set "+hours+":"+minutes,getChatId(update));
             sendApiMethodAsync(message);
         }
+        else if (button.equals("ETH")||button.equals("BTC"))
+        {
+            int userIndex = getUserIndex(getChatId(update));
+            userList.get(userIndex).setValue(button);
+            SendMessage message = createMessage("Value type set "+button,getChatId(update));
+            sendApiMethodAsync(message);
+        }
         else
         {
             commandMap.getOrDefault(button,noCommand).accept(update);
@@ -385,19 +353,24 @@ public class Bot extends TelegramLongPollingBot
         message.setReplyMarkup(markup);
 
     }
-    static class TimeComparator implements Comparator<String> {
+    private Map<String,String> createTimeButtons(int startValue,int endValue)
+    {
+        Map<String,String> map = new HashMap<>();
+        for (int i = startValue; i <= endValue; i++)
+        {
+            String a = i+":"+"00";
+            String b = i+":"+"30";
+            map.put(a,a+"_btn");
+            map.put(b,b+"_btn");
+        }
+        return map;
+    }
+    private static class TimeComparator implements Comparator<String> {
         @Override
         public int compare(String time1, String time2) {
-            int minutes1 = convertToInt(time1);
-            int minutes2 = convertToInt(time2);
+            int minutes1 = Integer.valueOf(time1.replace(":", ""));
+            int minutes2 = Integer.valueOf(time2.replace(":", ""));
             return Integer.compare(minutes1, minutes2);
-        }
-
-        private int convertToInt(String time) {
-            int hour=Integer.valueOf(time.substring(0,2));
-            int mins=Integer.valueOf(time.substring(3));
-
-            return hour * 60 + mins;
         }
     }
 

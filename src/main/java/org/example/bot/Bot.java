@@ -250,7 +250,7 @@ public class Bot extends TelegramLongPollingBot
                     throw new RuntimeException();
                 }
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(18000000);
                 }   catch (InterruptedException e) {
                     e.printStackTrace();
                 }

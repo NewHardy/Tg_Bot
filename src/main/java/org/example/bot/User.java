@@ -8,6 +8,24 @@ public class User implements Comparable<User>
     private int hour;
     private int mins;
     private String value;
+    private int TP;
+    private int SL;
+
+    public int getTP() {
+        return TP;
+    }
+
+    public void setTP(int TP) {
+        this.TP = TP;
+    }
+
+    public int getSL() {
+        return SL;
+    }
+
+    public void setSL(int SL) {
+        this.SL = SL;
+    }
 
     public String getValue() {
         return value;

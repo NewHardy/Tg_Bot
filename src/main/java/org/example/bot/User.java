@@ -8,23 +8,23 @@ public class User implements Comparable<User>
     private int hour;
     private int mins;
     private String value;
-    private int TP;
-    private int SL;
+    private int buy;
+    private int sell;
 
-    public int getTP() {
-        return TP;
+    public int getBuy() {
+        return buy;
     }
 
-    public void setTP(int TP) {
-        this.TP = TP;
+    public void setBuy(int buy) {
+        this.buy = buy;
     }
 
-    public int getSL() {
-        return SL;
+    public int getSell() {
+        return sell;
     }
 
-    public void setSL(int SL) {
-        this.SL = SL;
+    public void setSell(int sell) {
+        this.sell = sell;
     }
 
     public String getValue() {
@@ -61,6 +61,8 @@ public class User implements Comparable<User>
 
     public User(Long userID) {
         this.chatID = userID;
+        this.hour=24;
+        this.mins=1;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package org.example.bot;
 
-import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -27,7 +26,10 @@ public class Bot extends TelegramLongPollingBot
 
     private static ArrayList<User> userList=new ArrayList<>();
     private final Gson gson= new Gson();
-    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/BTC","/ETH","/Settings","/setAlarmTime","/setAlarmValue","/disableAlarm","/setSL","/setTP"));
+    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/BTC","/ETH","/Settings","/setAlarmTime","/setAlarmValue","/disableAlarm","/setSell","/setBuy"));
+    private final   ArrayList<String> settingsCommandList= new ArrayList<>(Arrays.asList("/setAlarmTime","/setAlarmValue","/disableAlarm","/setSell","/setBuy"));
+    private final HashMap<String,String> settingsCommandMap= new HashMap<>();
+    private final   ArrayList<String> helpCommandList= new ArrayList<>(Arrays.asList("/start","/BTC","/ETH","/Settings"));
     private final HashMap <String, String> helpCommandMap= new HashMap<>();
     private static float BTCPrice=0;
     private static float ETHPrice=0;
@@ -89,13 +91,7 @@ public class Bot extends TelegramLongPollingBot
     private final Consumer<Update> settings = (update -> {
        Long chatId = getChatId(update);
         SendMessage message = createMessage("Settings", chatId);
-        attachButtons(message, Map.of(
-                "/setAlarmTime", "/setAlarmTime_btn",
-                "/setAlarmValue","/setAlarmValue_btn",
-                "/disableAlarm","/disableAlarm_btn",
-                "/setSL", "/setSL_btn",
-                "/setTP", "/setTP_btn"
-        ));
+        attachButtons(message, settingsCommandMap);
         sendApiMethodAsync(message);
     });
     private final Consumer<Update> setAlarmValue = (update -> {
@@ -144,7 +140,6 @@ public class Bot extends TelegramLongPollingBot
         {
             userList.add(new User(getChatId(update)));
         }
-        userList.get(getUserIndex(chatId)).setValue("");
         userList.get(getUserIndex(chatId)).setMins(1);
         userList.get(getUserIndex(chatId)).setHour(24);
         SendMessage message = createMessage("your alarm have been disabled",chatId);
@@ -152,15 +147,15 @@ public class Bot extends TelegramLongPollingBot
         sendApiMethodAsync(message);
 
     });
-    private final Consumer<Update> setTP = (update -> {
+    private final Consumer<Update> setBuy = (update -> {
         Long chatId = getChatId(update);
-        SendMessage message = createMessage("at what price you want to take profits\n(send in format \"TP XXXX\")",chatId);
+        SendMessage message = createMessage("at what price you want to buy\n(send in format \"BUY XXXX\")",chatId);
         sendApiMethodAsync(message);
 
     });
-    private final Consumer<Update> setSL = (update -> {
+    private final Consumer<Update> setSell = (update -> {
         Long chatId = getChatId(update);
-        SendMessage message = createMessage("at what price you want to stop losses\n(send in format \"SL XXXX\")",chatId);
+        SendMessage message = createMessage("at what price you want to sell\n(send in format \"SELL XXXX\")",chatId);
         sendApiMethodAsync(message);
 
     });
@@ -174,7 +169,7 @@ public class Bot extends TelegramLongPollingBot
     private final Map<String, Consumer<Update>> commandMap = new HashMap<>();
 
     private final ArrayList<Consumer<Update>> consumerList=new ArrayList<>(Arrays.asList(
-            help,start,BTC,ETH,settings,setAlarmTime,setAlarmValue,disableAlarm,setSL,setTP
+            help,start,BTC,ETH,settings,setAlarmTime,setAlarmValue,disableAlarm,setSell,setBuy
     ));
 
     public static void main(String[] args) throws TelegramApiException {
@@ -205,12 +200,12 @@ public class Bot extends TelegramLongPollingBot
                     }
                     if (user.getValue().equals("BTC"))
                     {
-                        if (BTCPrice<=user.getSL())
+                        if (BTCPrice<=user.getSell())
                         {
                             SendMessage message = bot.createMessage("TIME TO SELL price reached "+BTCPrice, user.getChatID());
                             bot.sendApiMethodAsync(message);
                         }
-                        else if (BTCPrice>=user.getTP())
+                        else if (BTCPrice>=user.getBuy())
                         {
                             SendMessage message = bot.createMessage("TIME TO BUY price reached "+BTCPrice, user.getChatID());
                             bot.sendApiMethodAsync(message);
@@ -218,12 +213,12 @@ public class Bot extends TelegramLongPollingBot
                     }
                     if (user.getValue().equals("ETH"))
                     {
-                        if (ETHPrice<=user.getSL())
+                        if (ETHPrice<=user.getSell())
                         {
                             SendMessage message = bot.createMessage("TIME TO SELL price reached "+ETHPrice, user.getChatID());
                             bot.sendApiMethodAsync(message);
                         }
-                        else if (ETHPrice>=user.getTP())
+                        else if (ETHPrice>=user.getBuy())
                         {
                             SendMessage message = bot.createMessage("TIME TO BUY price reached "+ETHPrice, user.getChatID());
                             bot.sendApiMethodAsync(message);
@@ -322,7 +317,7 @@ public class Bot extends TelegramLongPollingBot
     private void messageHandler(Update update, Long chatId)
     {
         String text = update.getMessage().getText();
-        if (text.matches("[A-Z]{2}.\\d+\\b"))
+        if (text.matches("[A-Z]{3,4}.\\d+\\b"))
         {
             if (!userList.get(getUserIndex(chatId)).getValue().isBlank())
             {
@@ -430,16 +425,16 @@ public class Bot extends TelegramLongPollingBot
     }
     private void limitPricesHandler(String text,Long chatId)
     {
-        String limitType = text.substring(0,1);
+        String limitType = text.substring(0,3);
         int userIndex = getUserIndex(chatId);
-        String value = text.substring(3);
-        if (limitType.equalsIgnoreCase("TP"))
+        String value = text.substring(4);
+        if (limitType.equalsIgnoreCase("BUY "))
         {
-            userList.get(userIndex).setTP(Integer.parseInt(value));
+            userList.get(userIndex).setBuy(Integer.parseInt(value));
         }
-        else if (limitType.equalsIgnoreCase("SL"))
+        else if (limitType.equalsIgnoreCase("SEL"))
         {
-            userList.get(userIndex).setSL(Integer.parseInt(value));
+            userList.get(userIndex).setSell(Integer.parseInt(value));
         }
         SendMessage message = createMessage("your Limit was set at "+value,chatId);
         sendApiMethodAsync(message);
@@ -466,8 +461,11 @@ public class Bot extends TelegramLongPollingBot
     }
 
     {
-        for (String value : commandList) {
+        for (String value : helpCommandList) {
             helpCommandMap.put(value,value+"_btn");
+        }
+        for (String value : settingsCommandList) {
+            settingsCommandMap.put(value,value+"_btn");
         }
         for (int i = 0; i < commandList.size(); i++) {
             commandMap.put(commandList.get(i),consumerList.get(i));

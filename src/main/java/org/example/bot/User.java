@@ -7,7 +7,7 @@ public class User implements Comparable<User>
     private Long chatID;
     private int hour;
     private int mins;
-    private String value;
+    private String currency;
     private int buy;
     private int sell;
 
@@ -27,12 +27,12 @@ public class User implements Comparable<User>
         this.sell = sell;
     }
 
-    public String getValue() {
-        return value;
+    public String getCurrency() {
+        return currency;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public void setChatID(Long chatID) {

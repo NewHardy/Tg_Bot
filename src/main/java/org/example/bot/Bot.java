@@ -26,10 +26,12 @@ public class Bot extends TelegramLongPollingBot
 
     private static ArrayList<User> userList=new ArrayList<>();
     private final Gson gson= new Gson();
-    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/BTC","/ETH","/Settings","/setAlarmTime","/setAlarmValue","/disableAlarm","/setSell","/setBuy"));
-    private final   ArrayList<String> settingsCommandList= new ArrayList<>(Arrays.asList("/setAlarmTime","/setAlarmValue","/disableAlarm","/setSell","/setBuy"));
+    private final   ArrayList<String> commandList= new ArrayList<>(Arrays.asList("/help","/start","/BTC","/ETH","/settings","/setAlarmTime","/setAlarmValue","/disableAlarm","/setSell","/setBuy"));
+    private final   ArrayList<String> settingsCommandListKey= new ArrayList<>(Arrays.asList("Set Alarm Time","Set Alarm Currency","Set Sell Limit","Set Buy Limit"));
+    private final   ArrayList<String> settingsCommandListValue= new ArrayList<>(Arrays.asList("/setAlarmTime_btn","/setAlarmValue_btn","/setSell_btn","/setBuy_btn"));
     private final HashMap<String,String> settingsCommandMap= new HashMap<>();
-    private final   ArrayList<String> helpCommandList= new ArrayList<>(Arrays.asList("/start","/BTC","/ETH","/Settings"));
+    private final   ArrayList<String> helpCommandListKey= new ArrayList<>(Arrays.asList("Start","BTC Prices","ETH Prices","Settings"));
+    private final   ArrayList<String> helpCommandListValue= new ArrayList<>(Arrays.asList("/start_btn","/BTC_btn","/ETH_btn","/settings_btn"));
     private final HashMap <String, String> helpCommandMap= new HashMap<>();
     private static float BTCPrice=0;
     private static float ETHPrice=0;
@@ -41,7 +43,11 @@ public class Bot extends TelegramLongPollingBot
 
     });
     private final Consumer<Update> help = (update)->{
-        SendMessage message = createMessage("Hello im Andrey's first Bot \nMy commands are\n", getChatId(update));
+        if (!userList.contains(new User(getChatId(update))))
+        {
+            userList.add(new User(getChatId(update)));
+        }
+        SendMessage message = createMessage("Hello im Crypto Bot \nMy commands are\n", getChatId(update));
         attachButtons(message, helpCommandMap);
         sendApiMethodAsync(message);
     };
@@ -50,12 +56,14 @@ public class Bot extends TelegramLongPollingBot
         if (!userList.contains(new User(chatId)))
         {
             userList.add(new User(getChatId(update)));
-            SendMessage message = createMessage("you have been registered to the Bot, welcome to the best crypto bot ever",chatId);
+            SendMessage message = createMessage("you have been registered to the Bot, welcome to the best crypto bot ever, i can give you alarms to notify about the prices of your favourite cryptos and set buy and sell limits" +
+                    "\nGo to /help to see command list",chatId);
             sendApiMethodAsync(message);
         }
         else
         {
-            SendMessage message = createMessage("you are registered already registered to the best crypto bot",chatId);
+            SendMessage message = createMessage("you are registered already registered to the best crypto bot, i can give you alarms to notify about the prices of your favourite cryptos and set buy and sell limits"+
+                    "\nGo to /help to see command list",chatId);
             sendApiMethodAsync(message);
         }
     };
@@ -90,7 +98,13 @@ public class Bot extends TelegramLongPollingBot
     };
     private final Consumer<Update> settings = (update -> {
        Long chatId = getChatId(update);
-        SendMessage message = createMessage("Settings", chatId);
+       int userIndex= getUserIndex(chatId);
+       User user = userList.get(userIndex);
+        SendMessage message = createMessage("Settings" +
+                "\nCrypto: "+user.getCurrency()+
+                "\nTime: "+user.getHour()+":"+user.getMins()+
+                "\n BUY Limit: "+user.getBuy()+
+                "\n SELL Limit: "+user.getSell(), chatId);
         attachButtons(message, settingsCommandMap);
         sendApiMethodAsync(message);
     });
@@ -113,7 +127,7 @@ public class Bot extends TelegramLongPollingBot
         {
             userList.add(new User(getChatId(update)));
         }
-        SendMessage message = createMessage("Choose your time when to get notification",chatId);
+        SendMessage message = createMessage("Choose your time when to get the notification",chatId);
         Map <String, String> row1 = createTimeButtons(0,3);
         Map <String, String> row2 = createTimeButtons(4,7);
         Map <String, String> row3 = createTimeButtons(8,11);
@@ -130,6 +144,9 @@ public class Bot extends TelegramLongPollingBot
         list.add(row6);
         list.add(Map.of(
                 "TEST", "15:30_btn"
+        ));
+        list.add(Map.of(
+                "Disable Alarm", "disableAlarm_btn"
         ));
         attachButtons(message,list);
         sendApiMethodAsync(message);
@@ -149,13 +166,13 @@ public class Bot extends TelegramLongPollingBot
     });
     private final Consumer<Update> setBuy = (update -> {
         Long chatId = getChatId(update);
-        SendMessage message = createMessage("at what price you want to buy\n(send in format \"BUY XXXX\")",chatId);
+        SendMessage message = createMessage("At what price you want to buy\n(send in format \"BUY XXXX\")",chatId);
         sendApiMethodAsync(message);
 
     });
     private final Consumer<Update> setSell = (update -> {
         Long chatId = getChatId(update);
-        SendMessage message = createMessage("at what price you want to sell\n(send in format \"SELL XXXX\")",chatId);
+        SendMessage message = createMessage("At what price you want to sell\n(send in format \"SELL XXXX\")",chatId);
         sendApiMethodAsync(message);
 
     });
@@ -189,8 +206,8 @@ public class Bot extends TelegramLongPollingBot
                         if (user.getMins()==mins)
                         {
                             try {
-                                SendMessage message= bot.createMessage("ALARM\n"+user.getValue()+" "+
-                                        bot.getPrices(user.getValue()).toString()
+                                SendMessage message= bot.createMessage("ALARM\n"+user.getCurrency()+" "+
+                                        bot.getPrices(user.getCurrency()).toString()
                                         ,user.getChatID());
                                 bot.sendApiMethodAsync(message);
                             } catch (IOException e) {
@@ -198,7 +215,7 @@ public class Bot extends TelegramLongPollingBot
                             }
                         }
                     }
-                    if (user.getValue().equals("BTC"))
+                    if (user.getCurrency().equals("BTC"))
                     {
                         if (BTCPrice<=user.getSell())
                         {
@@ -211,7 +228,7 @@ public class Bot extends TelegramLongPollingBot
                             bot.sendApiMethodAsync(message);
                         }
                     }
-                    if (user.getValue().equals("ETH"))
+                    if (user.getCurrency().equals("ETH"))
                     {
                         if (ETHPrice<=user.getSell())
                         {
@@ -319,13 +336,13 @@ public class Bot extends TelegramLongPollingBot
         String text = update.getMessage().getText();
         if (text.matches("[A-Z]{3,4}.\\d+\\b"))
         {
-            if (!userList.get(getUserIndex(chatId)).getValue().isBlank())
+            if (userList.get(getUserIndex(chatId)).getCurrency().equals(""))
             {
                 limitPricesHandler(text,chatId);
             }
             else
             {
-                SendMessage message = createMessage("you dont have a value selected, go to /setAlarmValue",chatId);
+                SendMessage message = createMessage("you don't have a currency selected, go to /setAlarmValue to select a currency",chatId);
                 sendApiMethodAsync(message);
             }
         }
@@ -362,7 +379,7 @@ public class Bot extends TelegramLongPollingBot
         else if (button.equals("ETH")||button.equals("BTC"))
         {
             int userIndex = getUserIndex(getChatId(update));
-            userList.get(userIndex).setValue(button);
+            userList.get(userIndex).setCurrency(button);
             SendMessage message = createMessage("Value type set "+button,getChatId(update));
             sendApiMethodAsync(message);
         }
@@ -428,7 +445,7 @@ public class Bot extends TelegramLongPollingBot
         String limitType = text.substring(0,3);
         int userIndex = getUserIndex(chatId);
         String value = text.substring(4);
-        if (limitType.equalsIgnoreCase("BUY "))
+        if (limitType.equalsIgnoreCase("BUY"))
         {
             userList.get(userIndex).setBuy(Integer.parseInt(value));
         }
@@ -436,7 +453,7 @@ public class Bot extends TelegramLongPollingBot
         {
             userList.get(userIndex).setSell(Integer.parseInt(value));
         }
-        SendMessage message = createMessage("your Limit was set at "+value,chatId);
+        SendMessage message = createMessage("Your limit was set at "+value,chatId);
         sendApiMethodAsync(message);
     }
     private Map<String,String> createTimeButtons(int startValue,int endValue)
@@ -461,12 +478,20 @@ public class Bot extends TelegramLongPollingBot
     }
 
     {
-        for (String value : helpCommandList) {
-            helpCommandMap.put(value,value+"_btn");
+        for (int i = 0; i < helpCommandListKey.size(); i++)
+        {
+            helpCommandMap.put(helpCommandListKey.get(i),helpCommandListValue.get(i));
         }
-        for (String value : settingsCommandList) {
-            settingsCommandMap.put(value,value+"_btn");
+        for (int i = 0; i < settingsCommandListKey.size(); i++)
+        {
+            settingsCommandMap.put(settingsCommandListKey.get(i),settingsCommandListValue.get(i));
         }
+        //for (String value : helpCommandList) {
+        //    helpCommandMap.put(value,value+"_btn");
+        //}
+        //for (String value : settingsCommandList) {
+        //    settingsCommandMap.put(value,value+"_btn");
+        //}
         for (int i = 0; i < commandList.size(); i++) {
             commandMap.put(commandList.get(i),consumerList.get(i));
         }

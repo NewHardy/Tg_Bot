@@ -336,7 +336,7 @@ public class Bot extends TelegramLongPollingBot
         String text = update.getMessage().getText();
         if (text.matches("[A-Z]{3,4}.\\d+\\b"))
         {
-            if (userList.get(getUserIndex(chatId)).getCurrency().equals(""))
+            if (userList.get(getUserIndex(chatId)).getCurrency()!=null)
             {
                 limitPricesHandler(text,chatId);
             }

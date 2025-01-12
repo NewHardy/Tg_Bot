@@ -5,8 +5,8 @@ import java.util.Objects;
 public class User implements Comparable<User>
 {
     private Long chatID;
-    private int hour;
-    private int mins;
+    private Integer hour;
+    private Integer mins;
     private String currency;
     private int buy;
     private int sell;
@@ -62,7 +62,7 @@ public class User implements Comparable<User>
     public User(Long userID) {
         this.chatID = userID;
         this.hour=24;
-        this.mins=1;
+        this.mins=00;
     }
 
     @Override
